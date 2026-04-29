@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+data/cache/
+*.parquet
+paper_state.json
+trade_log.jsonl
+backtest_result.png
+*.egg-info/
+dist/
+build/
+.env
