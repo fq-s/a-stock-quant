@@ -3,7 +3,7 @@
 import math
 from typing import List
 
-from strategy.base import Trade
+from strategy.base import Trade, Signal
 
 
 def calc_metrics(
@@ -52,8 +52,8 @@ def calc_metrics(
 
     # 交易统计
     trade_count = len(trades)
-    buy_trades = [t for t in trades if str(t.action) == "Signal.BUY"]
-    sell_trades = [t for t in trades if str(t.action) == "Signal.SELL"]
+    buy_trades = [t for t in trades if t.action == Signal.BUY]
+    sell_trades = [t for t in trades if t.action == Signal.SELL]
 
     # 配对计算盈亏
     wins = 0

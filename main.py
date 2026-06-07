@@ -18,6 +18,7 @@ from data.fetcher import fetch_daily
 from strategy.ma_cross import MACrossStrategy, MACrossConfig
 from strategy.rsi_reversal import RSIStrategy, RSIConfig
 from backtest.engine import BacktestEngine, BacktestConfig
+from risk import RiskManager
 import config
 
 
@@ -33,6 +34,7 @@ def run_backtest(
     rsi_overbought: float = 70,
     initial_cash: float = 1_000_000,
     plot: bool = True,
+    with_risk: bool = True,
 ):
     # 1. 获取数据
     print(f"\n📊 A股量化回测")
@@ -54,9 +56,12 @@ def run_backtest(
         print(f"   策略: 双均线交叉 (MA{short_window} x MA{long_window})")
 
     # 3. 回测
-    bt_cfg = BacktestConfig(initial_cash=initial_cash)
+    risk_mgr = RiskManager.from_config(config.RISK) if (with_risk and config.RISK.get("enable_in_backtest", True)) else None
+    if risk_mgr:
+        print(f"   风控: {', '.join(r.name for r in risk_mgr.rules)}")
+    bt_cfg = BacktestConfig(initial_cash=initial_cash, risk_manager=risk_mgr)
     engine = BacktestEngine(strategy, bt_cfg)
-    result = engine.run(df)
+    result = engine.run(df, symbol=stock)
 
     # 4. 报告
     print(engine.report())
@@ -131,6 +136,7 @@ if __name__ == "__main__":
     parser.add_argument("--rsi-overbought", type=float, default=70, help="RSI超买阈值")
     parser.add_argument("--cash", type=float, default=1_000_000, help="初始资金")
     parser.add_argument("--no-plot", action="store_true", help="不绘图")
+    parser.add_argument("--no-risk", action="store_true", help="禁用风控（用于对比测试）")
 
     args = parser.parse_args()
     run_backtest(
@@ -145,4 +151,5 @@ if __name__ == "__main__":
         rsi_overbought=args.rsi_overbought,
         initial_cash=args.cash,
         plot=not args.no_plot,
+        with_risk=not args.no_risk,
     )

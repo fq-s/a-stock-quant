@@ -18,6 +18,20 @@ from strategy.ma_cross import MACrossStrategy, MACrossConfig
 from strategy.rsi_reversal import RSIStrategy, RSIConfig
 from live.paper_broker import PaperBroker
 from live.trader import LiveTrader
+from risk import RiskManager
+from notify import NotifyHub, ConsoleNotifier, ServerChanNotifier, NotifyLevel
+import config
+
+
+def _build_notify_hub() -> NotifyHub:
+    cfg = config.NOTIFY
+    notifiers = []
+    if cfg.get("console_enabled", True):
+        notifiers.append(ConsoleNotifier(log_file=cfg.get("log_file", "notify.log")))
+    sendkey = cfg.get("serverchan_sendkey", "")
+    if sendkey:
+        notifiers.append(ServerChanNotifier(sendkey=sendkey))
+    return NotifyHub(notifiers, min_level=cfg.get("min_level", "trade"))
 
 
 def main():
@@ -30,36 +44,36 @@ def main():
     parser.add_argument("--qmt-path", default="", help="QMT安装路径")
     parser.add_argument("--cash", type=float, default=1_000_000, help="模拟盘初始资金")
     parser.add_argument("--interval", type=int, default=60, help="轮询间隔(秒)")
-    parser.add_argument("--max-position", type=float, default=0.3, help="单股最大仓位")
-    parser.add_argument("--stop-loss", type=float, default=0.07, help="止损线")
+    parser.add_argument("--no-risk", action="store_true", help="禁用风控（不推荐）")
 
     args = parser.parse_args()
 
-    # 创建策略
+    # 策略
     if args.strategy == "rsi":
         strategy = RSIStrategy(RSIConfig())
     else:
         strategy = MACrossStrategy(MACrossConfig())
 
-    # 创建券商
-    broker = None
+    # 券商
     if args.qmt:
         from live.qmt_broker import QMTBroker
         broker = QMTBroker(account_id=args.account, qmt_path=args.qmt_path)
     else:
         broker = PaperBroker(initial_cash=args.cash)
 
-    # 创建交易引擎
+    # 风控 + 通知
+    risk_mgr = None if args.no_risk else RiskManager.from_config(config.RISK, is_live=True)
+    hub = _build_notify_hub()
+
     trader = LiveTrader(
         strategy=strategy,
         broker=broker,
         symbols=args.symbols,
         poll_interval=args.interval,
-        max_position_pct=args.max_position,
-        stop_loss_pct=args.stop_loss,
+        risk_manager=risk_mgr,
+        notify_hub=hub,
     )
 
-    # 启动
     print(trader.status())
     trader.start()
 
