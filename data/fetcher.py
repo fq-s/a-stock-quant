@@ -7,6 +7,8 @@
 
 import os
 import time
+from typing import Dict, List
+
 import pandas as pd
 import akshare as ak
 from datetime import datetime, timedelta
@@ -164,6 +166,49 @@ def fetch_index_daily(index_code: str = "000300", start: str = "", end: str = ""
                 time.sleep(RETRY_DELAY)
             else:
                 raise RuntimeError(f"下载指数 {index_code} 失败") from e
+
+
+def fetch_daily_batch(
+    symbols: List[str],
+    start: str,
+    end: str,
+    use_cache: bool = True,
+    sleep_between: float = 0.5,
+) -> Dict[str, pd.DataFrame]:
+    """批量获取多只股票日线（串行，复用 cache）
+
+    Parameters
+    ----------
+    symbols : List[str]
+        股票代码列表
+    start, end : str
+        起止日期 YYYYMMDD
+    use_cache : bool
+        命中本地 cache 时跳过 sleep
+    sleep_between : float
+        实际请求间隔秒数（防 akshare 限流）
+
+    Returns
+    -------
+    Dict[str, pd.DataFrame]  缺失的股票不出现在返回中
+    """
+    out: Dict[str, pd.DataFrame] = {}
+    total = len(symbols)
+    for i, sym in enumerate(symbols, 1):
+        cache_file = _cache_path(sym, start, end, "sina")
+        cache_hit = use_cache and os.path.exists(cache_file)
+        try:
+            df = fetch_daily(sym, start, end, use_cache=use_cache)
+            out[sym] = df
+        except Exception as e:
+            print(f"  ✗ [{i}/{total}] {sym} 跳过: {e}")
+            continue
+        if not cache_hit and sleep_between > 0 and i < total:
+            time.sleep(sleep_between)
+        if i % 20 == 0:
+            print(f"  ◐ 进度: {i}/{total}")
+    print(f"  ✓ 批量下载完成: {len(out)}/{total}")
+    return out
 
 
 if __name__ == "__main__":
