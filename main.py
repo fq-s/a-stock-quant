@@ -19,7 +19,10 @@ from strategy.ma_cross import MACrossStrategy, MACrossConfig
 from strategy.rsi_reversal import RSIStrategy, RSIConfig
 from backtest.engine import BacktestEngine, BacktestConfig
 from risk import RiskManager
+from utils.console import configure_utf8_console
 import config
+
+configure_utf8_console()
 
 
 def run_backtest(
