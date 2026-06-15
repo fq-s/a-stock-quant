@@ -5,7 +5,7 @@
     python portfolio_main.py
 
     # 自定义参数
-    python portfolio_main.py --universe 000905 --top 15 --rebalance 10 \\
+    python portfolio_main.py --universe 000905 --top 15 --rebalance 10 \
         --start 20240101 --end 20241231
 
     # 用本地 CSV 股票池
@@ -28,6 +28,9 @@ from portfolio import (
 )
 from risk import RiskManager
 from selector import FactorSelector, get_index_constituents, load_custom_universe
+from utils.console import configure_utf8_console
+
+configure_utf8_console()
 
 
 def run_portfolio_backtest(
