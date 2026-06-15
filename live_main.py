@@ -20,7 +20,10 @@ from live.paper_broker import PaperBroker
 from live.trader import LiveTrader
 from risk import RiskManager
 from notify import NotifyHub, ConsoleNotifier, ServerChanNotifier, NotifyLevel
+from utils.console import configure_utf8_console
 import config
+
+configure_utf8_console()
 
 
 def _build_notify_hub() -> NotifyHub:

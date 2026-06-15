@@ -46,7 +46,7 @@ def calc_metrics(
         excess_returns = [r - rf_daily for r in daily_returns]
         mean_excess = sum(excess_returns) / len(excess_returns)
         std = math.sqrt(sum((r - mean_excess) ** 2 for r in excess_returns) / (len(excess_returns) - 1))
-        sharpe = (mean_excess / std) * math.sqrt(252) if std > 0 else 0
+        sharpe = (mean_excess / std) * math.sqrt(252) if std > 1e-12 else 0
     else:
         sharpe = 0
 
