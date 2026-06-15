@@ -62,7 +62,7 @@ class TestSharpe:
     def test_constant_returns_no_explosion(self):
         # 全 100，std=0 时不应抛异常或返回 inf
         m = calc_metrics([100, 100, 100, 100], [100] * 4, 100, [])
-        assert m["sharpe_ratio"] == 0 or math.isfinite(m["sharpe_ratio"])
+        assert m["sharpe_ratio"] == 0
 
     def test_positive_returns(self):
         # 稳定上涨，夏普应为正
