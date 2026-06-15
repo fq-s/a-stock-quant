@@ -13,7 +13,10 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from web.app import create_app
+from utils.console import configure_utf8_console
 import config
+
+configure_utf8_console()
 
 
 def main():
