@@ -4,16 +4,17 @@ cd /d "%~dp0"
 
 set "PYTHON_CMD="
 
-where py >nul 2>nul
-if not errorlevel 1 set "PYTHON_CMD=py"
-
-if not defined PYTHON_CMD if exist "%LOCALAPPDATA%\Programs\Python\Python313\python.exe" set "PYTHON_CMD=%LOCALAPPDATA%\Programs\Python\Python313\python.exe"
 if not defined PYTHON_CMD if exist "%LOCALAPPDATA%\Programs\Python\Python312\python.exe" set "PYTHON_CMD=%LOCALAPPDATA%\Programs\Python\Python312\python.exe"
 if not defined PYTHON_CMD if exist "%LOCALAPPDATA%\Programs\Python\Python311\python.exe" set "PYTHON_CMD=%LOCALAPPDATA%\Programs\Python\Python311\python.exe"
+if not defined PYTHON_CMD if exist "%LOCALAPPDATA%\Programs\Python\Python313\python.exe" set "PYTHON_CMD=%LOCALAPPDATA%\Programs\Python\Python313\python.exe"
+if not defined PYTHON_CMD if exist "%LOCALAPPDATA%\Programs\Python\Python314\python.exe" set "PYTHON_CMD=%LOCALAPPDATA%\Programs\Python\Python314\python.exe"
+
+where py >nul 2>nul
+if not defined PYTHON_CMD if not errorlevel 1 set "PYTHON_CMD=py"
 
 if not defined PYTHON_CMD (
   echo Python was not found.
-  echo Install Python 3.11, 3.12, or 3.13.
+  echo Install Python 3.11, 3.12, 3.13, or 3.14.
   pause
   exit /b 1
 )
