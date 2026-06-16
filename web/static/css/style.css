@@ -1,9 +1,31 @@
 /* A股量化 Web 样式 */
 
 body {
-    background-color: #f5f6fa;
+    background: #f3f7fb;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
+
+.navbar { background: #102a43 !important; }
+.advanced-link { color: #ffd166 !important; }
+.welcome-panel {
+    background: linear-gradient(135deg, #102a43, #176b87);
+    border-radius: 24px;
+    color: #fff;
+    padding: 2.5rem;
+}
+.welcome-panel h1 { font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 800; margin: 1rem 0 .5rem; }
+.welcome-panel p { font-size: 1.15rem; margin: 0; opacity: .9; }
+.safe-pill { background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.25); padding: .5rem .8rem; border-radius: 999px; }
+.beginner-card, .help-card { border-radius: 22px; }
+.step-label { color: #176b87; font-weight: 800; letter-spacing: .08em; margin-bottom: .4rem; }
+.beginner-primary { padding: 1rem; font-weight: 800; border-radius: 14px; background: #137c8b; border-color: #137c8b; }
+.beginner-primary:hover { background: #0d6673; border-color: #0d6673; }
+.quick-test-form .form-control { font-size: 1.5rem; font-weight: 700; letter-spacing: .15em; }
+.plain-guide p { display: flex; flex-direction: column; padding: .8rem 0; margin: 0; border-bottom: 1px solid #e9eef3; }
+.plain-guide span { color: #6c757d; margin-top: .2rem; }
+.status-dot { display: inline-block; width: 10px; height: 10px; background: #2ca58d; border-radius: 50%; margin-right: .35rem; }
+.advanced-panel { padding: 1rem 1.25rem; background: #fff; border-radius: 16px; color: #52606d; }
+.advanced-panel a { margin-left: 1.2rem; text-decoration: none; }
 
 .metric-card {
     text-align: center;
