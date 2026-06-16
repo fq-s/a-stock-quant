@@ -1,78 +1,74 @@
 {% extends "base.html" %}
-{% block title %}仪表盘 — A股量化{% endblock %}
+{% block title %}首页 — A股量化小白客户端{% endblock %}
 {% block content %}
-<h5 class="mb-3"><i class="bi bi-speedometer2"></i> 仪表盘</h5>
+<section class="welcome-panel mb-4">
+    <div>
+        <span class="safe-pill"><i class="bi bi-shield-check"></i> 当前为安全研究模式，不会真实买卖股票</span>
+        <h1>今天想测试哪只股票？</h1>
+        <p>不用懂编程。输入股票代码，点击按钮，等待结果即可。</p>
+    </div>
+</section>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h6 class="card-title"><i class="bi bi-broadcast"></i> 实盘状态</h6>
-                {% if live_status.running %}
-                <span class="badge bg-success">运行中</span>
-                <p class="mt-2 mb-1">策略: {{ live_status.strategy }}</p>
-                <p class="mb-1">监控: {{ live_status.symbols | join(', ') }}</p>
-                <p class="mb-0">总资产: ¥{{ "%.0f" | format(live_status.total_assets) }}</p>
-                {% else %}
-                <span class="badge bg-secondary">未启动</span>
-                <p class="mt-2 mb-0"><a href="{{ url_for('live.control') }}" class="text-decoration-none">去启动 →</a></p>
-                {% endif %}
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="card beginner-card">
+            <div class="card-body p-4 p-lg-5">
+                <div class="step-label">第 1 步</div>
+                <h3>输入股票代码</h3>
+                <p class="text-muted">例如：平安银行是 000001，贵州茅台是 600519。</p>
+                <form method="POST" action="{{ url_for('backtest.run') }}" class="quick-test-form">
+                    <input type="hidden" name="strategy" value="ma_cross">
+                    <input type="hidden" name="start" value="2024-01-01">
+                    <input type="hidden" name="end" value="2024-12-31">
+                    <input type="hidden" name="initial_cash" value="1000000">
+                    <input type="hidden" name="param_short_window" value="5">
+                    <input type="hidden" name="param_long_window" value="20">
+                    <div class="input-group input-group-lg mb-4">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input name="stock" value="000001" maxlength="6" pattern="[0-9]{6}" class="form-control" aria-label="股票代码">
+                    </div>
+                    <div class="step-label">第 2 步</div>
+                    <h3>开始安全测试</h3>
+                    <p class="text-muted">系统会用过去的数据模拟，不会连接真实账户，也不会花钱。</p>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 beginner-primary">
+                        <i class="bi bi-play-fill"></i> 开始测试这只股票
+                    </button>
+                </form>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h6 class="card-title"><i class="bi bi-clock-history"></i> 最近回测</h6>
-                {% if last_bt and last_bt.metrics %}
-                <p class="mb-1">总收益率: <span class="{{ 'positive' if last_bt.metrics.total_return > 0 else 'negative' }}">{{ "%.2f%%" | format(last_bt.metrics.total_return * 100) }}</span></p>
-                <p class="mb-1">夏普比率: {{ "%.2f" | format(last_bt.metrics.sharpe_ratio) }}</p>
-                <p class="mb-1">最大回撤: <span class="negative">{{ "%.2f%%" | format(last_bt.metrics.max_drawdown * 100) }}</span></p>
-                <p class="mb-0">交易次数: {{ last_bt.metrics.trade_count }}</p>
-                {% else %}
-                <p class="text-muted mb-0">暂无回测记录<br><a href="{{ url_for('backtest.form') }}" class="text-decoration-none">去回测 →</a></p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h6 class="card-title"><i class="bi bi-lightning"></i> 快速操作</h6>
-                <div class="d-grid gap-2">
-                    <a href="{{ url_for('backtest.form') }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-play-circle"></i> 运行回测</a>
-                    <a href="{{ url_for('live.control') }}" class="btn btn-outline-success btn-sm"><i class="bi bi-broadcast"></i> 启动实盘</a>
-                    <a href="{{ url_for('data_mgmt.cache') }}" class="btn btn-outline-info btn-sm"><i class="bi bi-download"></i> 下载数据</a>
+
+    <div class="col-xl-4">
+        <div class="card help-card mb-4">
+            <div class="card-body p-4">
+                <div class="step-label">第 3 步</div>
+                <h4>看懂测试结果</h4>
+                <div class="plain-guide">
+                    <p><strong>总收益率</strong><span>模拟期间赚了还是亏了</span></p>
+                    <p><strong>最大回撤</strong><span>途中最多亏过多少</span></p>
+                    <p><strong>交易次数</strong><span>策略模拟买卖了几次</span></p>
                 </div>
             </div>
         </div>
+
+        {% if last_bt and last_bt.metrics %}
+        <div class="card help-card">
+            <div class="card-body p-4">
+                <span class="status-dot"></span> 最近一次测试
+                <h2 class="{{ 'positive' if last_bt.metrics.total_return >= 0 else 'negative' }} mt-3">
+                    {{ "%.2f%%" | format(last_bt.metrics.total_return * 100) }}
+                </h2>
+                <p class="text-muted mb-0">这是模拟结果，不代表未来收益。</p>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 
-{% if recent_trades %}
-<h6 class="mb-2"><i class="bi bi-list-check"></i> 最近交易</h6>
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-sm table-hover mb-0">
-            <thead class="table-light"><tr><th>时间</th><th>代码</th><th>操作</th><th>价格</th><th>数量</th></tr></thead>
-            <tbody>
-            {% for t in recent_trades %}
-            <tr>
-                <td>{{ t.time }}</td>
-                <td>{{ t.symbol }}</td>
-                <td>
-                    {% if t.action in ('BUY', 'buy') %}<span class="badge bg-danger">买入</span>
-                    {% elif t.action in ('SELL', 'sell') %}<span class="badge bg-success">卖出</span>
-                    {% elif t.action == 'STOP_LOSS' %}<span class="badge bg-warning text-dark">止损</span>
-                    {% else %}<span class="badge bg-secondary">{{ t.action }}</span>{% endif %}
-                </td>
-                <td>{{ "%.2f" | format(t.price | float) }}</td>
-                <td>{{ t.quantity }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<div class="advanced-panel mt-4">
+    <strong><i class="bi bi-tools"></i> 想进一步研究？</strong>
+    <a href="{{ url_for('backtest.form') }}">调整测试时间和策略</a>
+    <a href="{{ url_for('strategy.list') }}">查看策略说明</a>
+    <a href="{{ url_for('data_mgmt.cache') }}">查看数据缓存</a>
 </div>
-{% endif %}
 {% endblock %}
