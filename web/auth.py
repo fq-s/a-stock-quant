@@ -24,6 +24,11 @@ def load_user(user_id):
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
+    if (config.WEB.get("local_client_mode", False)
+            and request.remote_addr in {"127.0.0.1", "::1"}):
+        login_user(AdminUser())
+        return redirect(request.args.get("next", url_for("dashboard.index")))
+
     if request.method == "POST":
         username = request.form.get("username", "")
         password = request.form.get("password", "")

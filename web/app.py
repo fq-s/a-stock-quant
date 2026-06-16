@@ -19,6 +19,8 @@ def create_app() -> Flask:
     # Flask-Login
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
+    if config.WEB.get("local_client_mode", False):
+        login_manager.login_message = None
 
     # 注册 Blueprint
     from web.auth import auth_bp
